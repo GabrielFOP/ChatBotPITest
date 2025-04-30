@@ -1,9 +1,9 @@
 "use client"
 import React, { useRef, useState } from "react";
 
-export default function Home(){
-  
-  interface Conversation{
+export default function Home() {
+
+  interface Conversation {
     role: string
     content: string
   }
@@ -15,28 +15,42 @@ export default function Home(){
 
 
   const handleInput = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) =>{
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setValue(e.target.value)
     },
     []
   )
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) =>{
-    if(e.key === "Enter"){
-      const chatHistory = [...conversation, {role: "user", content: value}]
-      const rersponse = await fetch("/api/openAIChat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({messages: chatHistory}),
-      })
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    try {
+      if (e.key === "Enter") {
+        const chatHistory = [...conversation, { role: "user", content: value }]
+        const response = await fetch("/api/openAIChat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messages: chatHistory }),
+        })
 
-      const data = await rersponse.json()
-      setValue("")
+        const data = await response.json()
+        setValue("")
+
+        if (data.result.status === "error") {
+          setConversation([
+            ...chatHistory, { role: "assistant", content: data.result.message || "Ocorreu um erro inesperado. Tente novamente." }
+          ])
+        }
+        else {
+          setConversation([
+            ...chatHistory, { role: "assistant", content: data.result.choices[0].message.content }
+          ])
+        }
+      }
+    } catch (error) {
       setConversation([
-        ...chatHistory,{role: "assistant", content: data.result.choices[0].message.content}
-      ])
+        { role: "assistant", content: "Desculpe, houve um erro ao processar sua solicitação. Tente novamente." },
+      ]);
     }
   }
 
@@ -45,7 +59,7 @@ export default function Home(){
     setValue("")
     setConversation([])
   }
-  
+
 
   return (
     <div className="w-full">
