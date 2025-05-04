@@ -18,6 +18,7 @@ const cardapio = [
 ]
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extrairItensDaRespostaGPT(resposta: string, cardapio: any[]): string[] {
   const respostaLower = resposta.toLowerCase();
   const itensReconhecidos: string[] = [];
@@ -52,7 +53,7 @@ ${cardapio.map((item) => `- ${item.nome}`).join("\n")}
 Te passei o cardapio de nosso restaurante sempre que o cliente fizer o pedido quero que se baseie nele para verificar se esse condiz com o que ofercemos, 
 por favor tente fazer aproximações caso a entrada do cliente,mesmo que mal escrita, se aproxime com a de um item presente no cardapio.
 
-**Caso mesmo com aproximaçoes você não ache o item no cardapio me retorne a mensagem ["itemNaoEncontrado"].**
+**Caso mesmo com aproximaçoes você não ache o item no cardapio me retorne a mensagem [itemNaoEncontrado].**
 
 ETAPA 1 - RECEBER PEDIDO:
 - Aguarde o cliente informar um ou mais itens do cardápio.
@@ -64,8 +65,7 @@ ETAPA 2 - ADICIONAR MAIS ITENS:
 - Se o cliente disser que não quer adicionar mais itens, gere um recibo com a lista completa dos itens pedidos.
 - Em seguida, pergunte: "Podemos confirmar este pedido ou deseja cancelar?"
 
-ETAPA 3 - CONFIRMAÇÃO OU CANCELAMENTO:
-- Se o cliente disser que deseja cancelar, responda: "Pedido cancelado. Se quiser começar de novo, é só me avisar." e encerre a conversa.
+ETAPA 3 - CONFIRMAÇÃO:
 - Se o cliente confirmar, diga: "Pedido confirmado com sucesso."
 - Em seguida, pergunte: "Qual será a forma de pagamento? (Dinheiro, Cartão ou Pix)"
 
@@ -90,21 +90,15 @@ IMPORTANTE:
     model: model,
   });
 
-  let GPTResponse = completion.choices[0]?.message?.content || ""
+  const GPTResponse = completion.choices[0]?.message?.content || ""
 
   console.log(GPTResponse)
 
-  if(GPTResponse === "itemNaoEncontrado"){ // caso item não encontrado
+  if(GPTResponse === "[itemNaoEncontrado]"){ // caso item não encontrado
     return NextResponse.json({
       result: {
         status: "error",
-        choices: [
-          {
-            message: {
-              content: "Desculpe, não identifiquei nenhum dos itens que você informou em nosso cardápio. Poderia me informá-los novamente, por favor?"
-            }
-          }
-        ] 
+        message: "Desculpe, não identifiquei nenhum dos itens que você informou em nosso cardápio. Poderia me informá-los novamente, por favor?"
       }
     })
   }else{ // Fluxo básico 
@@ -119,31 +113,19 @@ IMPORTANTE:
         return NextResponse.json({
           result: {
             status: "error",
-            choices: [
-              {
-                message: {
-                  content: "Desculpe tive um problema e não consegui achar seu item pode repitir?"
-                }
-              }
-            ] 
+            message: "Desculpe, não identifiquei nenhum dos itens que você informou em nosso cardápio. Poderia me informá-los novamente, por favor?"
           }
         })
       }
     }
 
-    if(GPTResponse === "pedidoCancelado"){
+    if(GPTResponse === "[pedidoCancelado]"){
       // inserir controle do db 
 
       return NextResponse.json({
         result: {
-          status: "error", 
-          choices: [
-            {
-              message: {
-                content: "Pedido cancelado. Se quiser começar de novo, é só me avisar."
-              }
-            }
-          ] 
+          status: "error",
+          message: "Pedido cancelado. Se quiser começar de novo, é só me avisar."
         }
       })
 

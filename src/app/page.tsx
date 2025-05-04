@@ -51,6 +51,7 @@ export default function Home() {
       setConversation([
         { role: "assistant", content: "Desculpe, houve um erro ao processar sua solicitação. Tente novamente." },
       ]);
+      console.log(error)
     }
   }
 
