@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OrderService } from './services/order.service';
 import { AIService } from './services/ai.service';
-import { extractItemsWithQuantity, cleanAiResponse, hasSpecialCommand } from "./utils/parser.util";
+import { extractItemsWithQuantity, cleanAiResponse, hasSpecialCommand, processMultipleCommands } from "./utils/parser.util";
 import { ERROR_MESSAGES } from './constants/messages.const';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MenuItem, APIResponse, ChatMessage } from './types';
@@ -22,7 +22,7 @@ const MENU: MenuItem[] = [
 export async function POST(req: NextRequest) {
   try {
     const { messages, currentOrder } = await req.json();
-    
+
     // Inicializa serviços
     const orderService = new OrderService(currentOrder);
     const aiService = new AIService(
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     // Gera resposta da IA
     const orderSummary = orderService.getOrderSummary(MENU);
     const aiResponse = await aiService.generateResponse(messages, MENU, orderSummary);
+    console.log(aiResponse)
     const cleanResponse = cleanAiResponse(aiResponse);
 
     // Processa comandos especiais
@@ -49,23 +50,31 @@ export async function POST(req: NextRequest) {
       return jsonResponse('error', ERROR_MESSAGES.ORDER_CANCELLED);
     }
 
-    // Processa itens do pedido
-    const extractedItems = extractItemsWithQuantity(aiResponse, MENU);
-    orderService.updateItems(extractedItems);
-
-    if (hasSpecialCommand(aiResponse, 'removerItem')) {
-      const itemsToRemove = extractItemsWithQuantity(aiResponse, MENU, true);
-      itemsToRemove.forEach((item: { id: number; quant: number; }) => orderService.removeItem(item.id, item.quant));
-    }
-
-    if (hasSpecialCommand(aiResponse, 'editarItem')) {
-      const itemsToEdit = extractItemsWithQuantity(aiResponse, MENU);
-      itemsToEdit.forEach((item: { id: number; quant: number; }) => {
-        orderService.removeItem(item.id, orderService.getCurrentOrder()[item.id]?.quant || 0);
-        orderService.addItem(item.id, item.quant);
-      });
-    }
-
+    // Processa múltiplos comandos na mesma resposta
+    const commands = processMultipleCommands(aiResponse, MENU);
+    
+    if (commands.length > 0) {
+      for (const command of commands) {
+        if (command.type === 'remove') {
+          command.items.forEach((item: { id: number; quant: number; }) => orderService.removeItem(item.id, Math.abs(item.quant)));
+          console.log("fui removido: " + orderService)
+        } else {
+          command.items.forEach((item: { id: number; quant: number; }) => {
+            // Para edição, primeiro remove a quantidade existente
+            const currentQuant = orderService.getCurrentOrder()[item.id]?.quant || 0;
+            orderService.removeItem(item.id, currentQuant);
+            orderService.addItem(item.id, item.quant);
+            console.log("fui editado: " + orderService)
+          });
+        }
+      }
+    } else {
+      // Processamento padrão se não houver comandos explícitos
+      const extractedItems = extractItemsWithQuantity(aiResponse, MENU);
+      console.log(extractedItems)
+      orderService.updateItems(extractedItems);
+      console.log(orderService)
+    }   
     // Retorna resposta
     return NextResponse.json({
       status: 'success',

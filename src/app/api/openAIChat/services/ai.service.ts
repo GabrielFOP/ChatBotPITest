@@ -8,8 +8,8 @@ export class AIService {
 
     constructor(apiKey: string, baseURL: string, config: AIconfig){
         this.openai = new OpenAI({
-            apiKey,
-            baseURL
+            apiKey: apiKey,
+            baseURL: baseURL
         })
         this.config = config
     }
