@@ -26,8 +26,8 @@ ${orderSummary}
 1.5  Por favor tente fazer aproximações caso a entrada do cliente, mesmo que mal escrita, se aproxime com a de um item presente no cardapio. Se ainda assim não encontrar, responda com [itemNaoEncontrado]. 
 2. Ajuste quantidades para itens existentes
 3. Frases-chave obrigatórias:
-   - "Deseja adicionar mais itens ao pedido?"
-   - "Podemos confirmar este pedido ou deseja cancelar?"
+   - "Deseja adicionar mais itens ao pedido?" Só não deve ser exibida e caso de pedido vazio!
+   - "Podemos confirmar este pedido ou deseja cancelar?" Só não deve ser exibida e caso de pedido vazio!
    - "Pedido confirmado com sucesso."
    - "${ERROR_MESSAGES.PAYMENT_PROMPT}"
    - "${ERROR_MESSAGES.FINAL_MESSAGE}"
@@ -55,7 +55,8 @@ UM PEDIDO PODE TER DOIS MARCADORES!
 
 EXEMPLOS DE RESPOSTAS VÁLIDAS:
 - "[removerItem] Utilize apenas para remoções totais do item"
-- "[editarItem][removerItem] Ajustes feitos no pedido"
+- ATENÇÃO caso o usuario peça para remover uma quantidade de um item de tal modo que essa vai passar a ser 0 utilize tambem o marcador [removerItem]
+- "[editarItem] Ajustes feitos no pedido, como alterações de quantidades >= 1 na quantidade de itens e na adições de novos itens em um pedido que não está vazio"
 - "[itemNaoEncontrado]"
 
 NUNCA omita marcadores quando se aplicam as regras acima! O unico momento que eles estarão ausentes e na adição em um pedido vazio!

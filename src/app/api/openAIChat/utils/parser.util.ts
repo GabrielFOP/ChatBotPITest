@@ -4,6 +4,7 @@ import { ITEM_REGEX } from "../constants/regex.const"
 interface ProcessedCommand {
     type: 'remove' | 'edit';
     items: { id: number; quant: number }[];
+    toDelete?: {id: number}[]
 }
 
 export function extractItemsWithQuantity(
@@ -20,6 +21,7 @@ export function extractItemsWithQuantity(
         if (!isNaN(quantity) && quantity !== 0) {
             extractedItems.push({ id: item.id, quant: quantity })
         }
+      
     }
 
     return extractedItems;
@@ -66,18 +68,49 @@ export function processMultipleCommands(response: string, menu: MenuItem[]): Pro
         } else if (part === '[editarItem]') {
             currentType = 'edit';
         } else if (currentType) {
-            const items = extractItemsWithQuantity(part, menu, currentType === 'remove');
-            if (items.length > 0) {
-                commands.push({
-                    type: currentType,
-                    items
-                });
+            if (currentType === 'remove') {
+                const toDelete = extractItemIdsFromRemoviLine(part, menu);
+                if (toDelete.length > 0) {
+                    commands.push({
+                        type: currentType,
+                        items: [], // vazio para delete puro
+                        toDelete // considerando apenas um item deletado
+                    });
+                }
+            } else {
+                const items = extractItemsWithQuantity(part, menu, false);
+                if (items.length > 0) {
+                    commands.push({
+                        type: currentType,
+                        items
+                    });
+                }
             }
         }
     });
 
     return commands;
 }
+
+
+function extractItemIdsFromRemoviLine(text: string, menu: MenuItem[]): { id: number }[] {
+    const result: { id: number }[] = [];
+
+    const lines = text.split('\n').map(line => line.trim());
+    const remLine = lines.find(line => /^removi/i.test(line));
+
+    if (!remLine) return result;
+
+    for (const item of menu) {
+        const pattern = new RegExp(`removi\\s+(?:o|a)?\\s*${item.nome}`, 'i');
+        if (pattern.test(remLine)) {
+            result.push({ id: item.id });
+        }
+    }
+
+    return result;
+}
+
 
 export function cleanAiResponse(response: string): string {
     return response.replace(/\[.*?\]/g, '');

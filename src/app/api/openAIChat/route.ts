@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Inicializa serviços
     const orderService = new OrderService(currentOrder);
     const aiService = new AIService(
-      process.env.OPEN_API_KEY || '',
+      process.env.OPEN_API_KEY || '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',
       'https://models.github.ai/inference',
       AI_CONFIG
     );
@@ -55,9 +55,9 @@ export async function POST(req: NextRequest) {
     
     if (commands.length > 0) {
       for (const command of commands) {
-        if (command.type === 'remove') {
-          command.items.forEach((item: { id: number; quant: number; }) => orderService.removeItem(item.id, Math.abs(item.quant)));
-          console.log("fui removido: " + orderService)
+        if (command.type === 'remove' && command.toDelete) {
+            const idsToDelete = command.toDelete.map(item => item.id);  // Extrai os IDs de todos os itens
+            orderService.deleteItems(idsToDelete);  // Passa o array de IDs para deleteItems
         } else {
           command.items.forEach((item: { id: number; quant: number; }) => {
             // Para edição, primeiro remove a quantidade existente

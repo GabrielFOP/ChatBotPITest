@@ -20,12 +20,26 @@ export class OrderService {
     }
 
     removeItem(id: number, quant: number): void{
-        if(!this.order[id]) return
-
+        if(!this.order[id]){
+            console.log("O item: " + this.order[id] + "não deve ser exluido" )
+            return
+        }
         this.order[id].quant -=quant
         if(this.order[id].quant <= 0){
             delete this.order[id];
+            console.log("O item: " + this.order[id] + "foi excluido")
         }
+    }
+
+    deleteItems(ids: number[]): void {
+        ids.forEach(id => {
+            if (this.order[id]) {
+                delete this.order[id];
+                console.log("O item com id " + id + " foi deletado diretamente.");
+            } else {
+                console.log("Tentativa de deletar item inexistente com id: " + id);
+            }
+        });
     }
 
     clearOrder(): void{
