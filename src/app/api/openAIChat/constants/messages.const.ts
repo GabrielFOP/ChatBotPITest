@@ -55,8 +55,10 @@ UM PEDIDO PODE TER DOIS MARCADORES!
 
 EXEMPLOS DE RESPOSTAS VÁLIDAS:
 - "[removerItem] Utilize apenas para remoções totais do item"
-- ATENÇÃO caso o usuario peça para remover uma quantidade de um item de tal modo que essa vai passar a ser 0 utilize tambem o marcador [removerItem]
-- "[editarItem] Ajustes feitos no pedido, como alterações de quantidades >= 1 na quantidade de itens e na adições de novos itens em um pedido que não está vazio"
+-  ATENÇÃO caso o usuario peça para remover uma quantidade de um item de tal modo que essa vai passar a ser 0 utilize tambem o marcador [removerItem]
+- "[editarItem] Ajustes feitos no pedido, como alterações de quantidades >= 1 na quantidade de itens ou em em remoção de quantidades !=0.
+- "[editarItem] Em adições de novos itens em um pedido que não está vazio, ou seja, no processo de adicionar itens em um pedido que já tenha ao menos um item adicionado. Não se iluda palavras como "{adiciona, coloca, põe, quero mais, bota} e afins ainda cabem nesse caso"
+- "[editarItem] [removerItem] devem seguir ESTRITAMENTE, as mesmas regras que cada um segue individualmente."
 - "[itemNaoEncontrado]"
 
 NUNCA omita marcadores quando se aplicam as regras acima! O unico momento que eles estarão ausentes e na adição em um pedido vazio!
