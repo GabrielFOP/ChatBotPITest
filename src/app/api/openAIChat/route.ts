@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Inicializa serviços
     const orderService = new OrderService(currentOrder);
     const aiService = new AIService(
-      process.env.OPEN_API_KEY || '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',
+      process.env.OPEN_API_KEY || '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',
       'https://models.github.ai/inference',
       AI_CONFIG
     );

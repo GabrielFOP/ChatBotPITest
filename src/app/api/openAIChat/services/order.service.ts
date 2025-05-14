@@ -44,7 +44,9 @@ export class OrderService {
 
     clearOrder(): void{
         this.order = {}
+        console.log("pedido limpo")
     }
+    
 
     getOrderSummary(menu: MenuItem[]): string{
         const items = Object.entries(this.order).map(([id, item]) => {

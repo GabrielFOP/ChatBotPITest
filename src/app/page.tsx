@@ -59,12 +59,19 @@ export default function ChatInterface() {
           role: "assistant", 
           content: data.message 
         }]);
+
+        if(data.message.includes("Pedido cancelado. Se quiser começar de novo, é só me avisar.")){
+          setOrderState({ currentOrder: {}, orderConfirmed: false })
+        }
+        console.log("Mensagem do front:" + data.message)
       } else {
         setConversation([...updatedConversation, { 
           role: "assistant", 
           content: data.message 
         }]);
         
+        
+
         // Atualiza o estado do pedido se retornado pelo backend
         if (data.currentOrder) {
           setOrderState(prev => ({ 
@@ -76,6 +83,7 @@ export default function ChatInterface() {
         // Marca como confirmado se for a mensagem de confirmação
         if (data.message.includes("Pedido confirmado com sucesso")) {
           setOrderState(prev => ({ ...prev, orderConfirmed: true }));
+          console.log("oi2")
         }
 
         // Captura método de pagamento
@@ -85,6 +93,8 @@ export default function ChatInterface() {
             setOrderState(prev => ({ ...prev, paymentMethod }));
           }
         }
+
+
       }
     } catch (error) {
       console.error("Error:", error);

@@ -27,7 +27,7 @@ export function extractItemsWithQuantity(
     return extractedItems;
 }
 
-// Atualize findQuantityInText
+
 function findQuantityInText(itemName: string, text: string, isRemoval: boolean): number {
     const lowerName = itemName.toLowerCase();
     const lowerText = text.toLowerCase();
@@ -47,9 +47,9 @@ function findQuantityInText(itemName: string, text: string, isRemoval: boolean):
     }
 
     // Se não encontrou quantidade mas o item está mencionado
-    if (quantity === 0 && lowerText.includes(lowerName)) {
-        quantity = isRemoval ? -1 : 1;
-    }
+    // if (quantity === 0 && lowerText.includes(lowerName)) {
+    //     quantity = isRemoval ? -1 : 1;
+    // }
 
     return quantity;
 }
